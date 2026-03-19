@@ -1,13 +1,28 @@
-import { getInventorySummary } from "@/lib/inventory";
+import { auth } from "@clerk/nextjs/server";
+import LowStockAlerts from "@/components/inventory/LowStockAlerts";
+import { getLowStockItems } from "@/lib/inventory-status";
+import { getInventoryItems, getInventorySummary } from "@/lib/inventory";
+import { getPrepSummary } from "@/lib/prep";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const summary = await getInventorySummary();
+  const { userId, redirectToSignIn } = await auth();
+
+  if (!userId) {
+    return redirectToSignIn();
+  }
+
+  const summary = await getInventorySummary(userId);
+  const inventoryItems = await getInventoryItems(userId);
+  const lowStockItems = getLowStockItems(inventoryItems);
+  const prepSummary = await getPrepSummary(userId);
+  const hasAnyData = summary.totalItems > 0 || prepSummary.totalTasks > 0;
   const summaryCards = [
     { label: "Total Items", value: summary.totalItems.toString() },
     { label: "Low Stock Items", value: summary.lowStockItems.toString() },
-    { label: "Open Prep Tasks", value: "4" },
+    { label: "Critical Items", value: summary.criticalItems.toString() },
+    { label: "Open Prep Tasks", value: prepSummary.openTasks.toString() },
   ];
 
   return (
@@ -17,11 +32,12 @@ export default async function DashboardPage() {
           Dashboard
         </h1>
         <p className="mt-2 text-sm text-stone-600 sm:text-base">
-          A simple overview of the inventory tracker will live here.
+          Review your current inventory health, low-stock risk, and prep task
+          progress in one place.
         </p>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {summaryCards.map((card) => (
           <div
             key={card.label}
@@ -35,10 +51,28 @@ export default async function DashboardPage() {
         ))}
       </section>
 
+      {!hasAnyData ? (
+        <section className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-stone-900">
+            Your dashboard is ready
+          </h2>
+          <p className="mt-2 text-sm text-stone-600">
+            Add your first inventory item or prep task to start seeing live
+            dashboard summaries.
+          </p>
+        </section>
+      ) : null}
+
+      <LowStockAlerts
+        emptyMessage="You do not have any low stock inventory alerts right now."
+        items={lowStockItems}
+        title="Low Stock Alert"
+      />
+
       <section className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-5">
         <p className="text-sm text-stone-600">
-          Inventory totals now come from the database through Prisma. Prep
-          tasks are still placeholder content for this stage.
+          Inventory risk and prep totals come from the database through Prisma
+          and stay scoped to the signed-in user.
         </p>
       </section>
     </div>

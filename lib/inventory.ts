@@ -1,8 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { getLowStockItems } from "@/lib/inventory-status";
 import type { InventoryItem } from "@/types/inventory";
 
-export async function getInventoryItems(): Promise<InventoryItem[]> {
+export async function getInventoryItems(userId: string): Promise<InventoryItem[]> {
   const items = await prisma.inventoryItem.findMany({
+    where: {
+      userId,
+    },
     orderBy: {
       id: "asc",
     },
@@ -18,14 +22,15 @@ export async function getInventoryItems(): Promise<InventoryItem[]> {
   }));
 }
 
-export async function getInventorySummary() {
-  const items = await getInventoryItems();
-  const lowStockItems = items.filter(
-    (item) => item.quantity <= item.lowStockThreshold,
-  ).length;
+export async function getInventorySummary(userId: string) {
+  const items = await getInventoryItems(userId);
+  const lowStockItems = getLowStockItems(items).length;
+  const criticalItems = items.filter((item) => item.quantity === 0).length;
 
   return {
     totalItems: items.length,
     lowStockItems,
+    criticalItems,
+    okItems: items.length - lowStockItems,
   };
 }

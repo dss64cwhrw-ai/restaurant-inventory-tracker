@@ -19,15 +19,17 @@ export default function AppSidebar() {
             Inventory Tracker
           </p>
           <p className="mt-1 text-sm text-stone-600">
-            Starter navigation for the first stage of the app.
+            Portfolio-ready navigation for inventory, low-stock alerts, and
+            prep tracking.
           </p>
         </div>
 
-        <nav className="mt-5 flex flex-col gap-2">
+        <nav aria-label="Primary" className="mt-5 flex flex-col gap-2">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              prefetch={item.href === "/" ? undefined : false}
               className="rounded-xl px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100 hover:text-stone-900"
             >
               {item.label}

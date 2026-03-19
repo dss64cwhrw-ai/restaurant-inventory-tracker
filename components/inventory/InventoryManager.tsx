@@ -8,6 +8,13 @@ import {
 } from "@/app/inventory/actions";
 import AddItemForm from "@/components/inventory/AddItemForm";
 import InventoryTable from "@/components/inventory/InventoryTable";
+import LowStockAlerts from "@/components/inventory/LowStockAlerts";
+import {
+  getLowStockItems,
+  getInventoryStatus,
+  isLowStock,
+  sortInventoryByUrgency,
+} from "@/lib/inventory-status";
 import type { InventoryItem, InventoryItemInput } from "@/types/inventory";
 
 type InventoryManagerProps = {
@@ -31,25 +38,34 @@ export default function InventoryManager({
     ...Array.from(new Set(items.map((item) => item.category))).sort(),
   ];
 
-  const filteredItems = items.filter((item) => {
+  const sortedItems = sortInventoryByUrgency(items);
+
+  const filteredItems = sortedItems.filter((item) => {
     const matchesSearch = item.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesCategory =
       selectedCategory === "All Categories" ||
       item.category === selectedCategory;
-    const isLowStock = item.quantity <= item.lowStockThreshold;
+    const itemStatus = getInventoryStatus(
+      item.quantity,
+      item.lowStockThreshold,
+    );
     const matchesStatus =
       selectedStatus === "All Statuses" ||
-      (selectedStatus === "Low Stock" && isLowStock) ||
-      (selectedStatus === "OK" && !isLowStock);
+      (selectedStatus === "Critical" && itemStatus === "critical") ||
+      (selectedStatus === "Low Stock" && itemStatus === "low") ||
+      (selectedStatus === "Needs Attention" && itemStatus !== "ok") ||
+      (selectedStatus === "OK" && itemStatus === "ok");
 
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const visibleLowStockItems = filteredItems.filter(
-    (item) => item.quantity <= item.lowStockThreshold,
+  const allLowStockItems = getLowStockItems(items);
+  const visibleLowStockItems = filteredItems.filter((item) =>
+    isLowStock(item.quantity, item.lowStockThreshold),
   ).length;
+  const criticalItems = items.filter((item) => item.quantity === 0).length;
 
   async function handleAddItem(newItem: InventoryItemInput) {
     setIsSaving(true);
@@ -144,6 +160,13 @@ export default function InventoryManager({
       />
 
       <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-stone-900">Filters</h2>
+          <p className="mt-1 text-sm text-stone-600">
+            Use search and stock filters to narrow the inventory table below.
+          </p>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-3">
           <div>
             <label
@@ -156,6 +179,7 @@ export default function InventoryManager({
               id="search"
               type="text"
               placeholder="Search items..."
+              aria-describedby="inventory-filter-help"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
@@ -171,6 +195,7 @@ export default function InventoryManager({
             </label>
             <select
               id="categoryFilter"
+              aria-describedby="inventory-filter-help"
               value={selectedCategory}
               onChange={(event) => setSelectedCategory(event.target.value)}
               className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
@@ -192,19 +217,55 @@ export default function InventoryManager({
             </label>
             <select
               id="statusFilter"
+              aria-describedby="inventory-filter-help"
               value={selectedStatus}
               onChange={(event) => setSelectedStatus(event.target.value)}
               className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
             >
               <option value="All Statuses">All Statuses</option>
+              <option value="Needs Attention">Needs Attention</option>
+              <option value="Critical">Critical</option>
               <option value="Low Stock">Low Stock</option>
               <option value="OK">OK</option>
             </select>
           </div>
         </div>
+
+        <p id="inventory-filter-help" className="mt-4 text-sm text-stone-600">
+          Filters update the visible inventory list without changing your saved
+          data.
+        </p>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <button
+            type="button"
+            onClick={() => setSelectedStatus("Needs Attention")}
+            aria-pressed={selectedStatus === "Needs Attention"}
+            className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 transition hover:bg-amber-100"
+          >
+            Show Items Needing Attention
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedStatus("All Statuses")}
+            aria-pressed={selectedStatus === "All Statuses"}
+            className="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+          >
+            Show All Items
+          </button>
+        </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-stone-500">
+            Total Inventory Items
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-900">
+            {items.length}
+          </p>
+        </div>
+
         <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
           <p className="text-sm font-medium text-stone-500">Visible Items</p>
           <p className="mt-3 text-3xl font-semibold text-stone-900">
@@ -220,7 +281,20 @@ export default function InventoryManager({
             {visibleLowStockItems}
           </p>
         </div>
+
+        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-stone-500">Critical Items</p>
+          <p className="mt-3 text-3xl font-semibold text-stone-900">
+            {criticalItems}
+          </p>
+        </div>
       </section>
+
+      <LowStockAlerts
+        emptyMessage="You do not have any low stock items right now."
+        items={allLowStockItems}
+        title="Low Stock Alerts"
+      />
 
       {filteredItems.length > 0 ? (
         <InventoryTable
@@ -229,13 +303,28 @@ export default function InventoryManager({
           onEditItem={handleEditItem}
           onDeleteItem={handleDeleteItem}
         />
+      ) : items.length === 0 ? (
+        <section
+          aria-live="polite"
+          className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+        >
+          <h3 className="text-lg font-semibold text-stone-900">
+            No inventory items yet
+          </h3>
+          <p className="mt-2 text-sm text-stone-600">
+            Add your first inventory item above to start tracking stock.
+          </p>
+        </section>
       ) : (
-        <section className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm">
+        <section
+          aria-live="polite"
+          className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+        >
           <h3 className="text-lg font-semibold text-stone-900">
             No matching items
           </h3>
           <p className="mt-2 text-sm text-stone-600">
-            No inventory items match your current filters.
+            No inventory items match your current search or stock filters.
           </p>
         </section>
       )}

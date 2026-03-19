@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { inventoryItemSchema } from "@/lib/validations/inventory";
 import type { InventoryItem, InventoryItemInput } from "@/types/inventory";
 
 type AddItemFormProps = {
@@ -60,6 +61,9 @@ export default function AddItemForm({
 }: AddItemFormProps) {
   const [values, setValues] = useState<FormValues>(buildFormValues(editingItem));
   const [errors, setErrors] = useState<FormErrors>({});
+  const formTitleId = editingItem
+    ? `inventory-form-title-${editingItem.id}`
+    : "inventory-form-title";
 
   function handleChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -79,32 +83,22 @@ export default function AddItemForm({
 
   function validateForm() {
     const nextErrors: FormErrors = {};
-    const quantity = Number(values.quantity);
-    const lowStockThreshold = Number(values.lowStockThreshold);
+    const result = inventoryItemSchema.safeParse({
+      name: values.name,
+      category: values.category,
+      quantity: Number(values.quantity),
+      unit: values.unit,
+      lowStockThreshold: Number(values.lowStockThreshold),
+    });
 
-    if (!values.name.trim()) {
-      nextErrors.name = "Item Name is required.";
-    }
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
 
-    if (!values.category.trim()) {
-      nextErrors.category = "Category is required.";
-    }
-
-    if (!values.quantity.trim()) {
-      nextErrors.quantity = "Quantity is required.";
-    } else if (Number.isNaN(quantity) || quantity <= 0) {
-      nextErrors.quantity = "Quantity must be greater than 0.";
-    }
-
-    if (!values.unit.trim()) {
-      nextErrors.unit = "Unit is required.";
-    }
-
-    if (!values.lowStockThreshold.trim()) {
-      nextErrors.lowStockThreshold = "Low Stock Threshold is required.";
-    } else if (Number.isNaN(lowStockThreshold) || lowStockThreshold < 0) {
-      nextErrors.lowStockThreshold =
-        "Low Stock Threshold must be 0 or greater.";
+      nextErrors.name = fieldErrors.name?.[0];
+      nextErrors.category = fieldErrors.category?.[0];
+      nextErrors.quantity = fieldErrors.quantity?.[0];
+      nextErrors.unit = fieldErrors.unit?.[0];
+      nextErrors.lowStockThreshold = fieldErrors.lowStockThreshold?.[0];
     }
 
     setErrors(nextErrors);
@@ -129,9 +123,9 @@ export default function AddItemForm({
 
     const wasSuccessful = editingItem
       ? await onUpdateItem({
-        id: editingItem.id,
-        ...nextItem,
-      })
+          id: editingItem.id,
+          ...nextItem,
+        })
       : await onAddItem(nextItem);
 
     if (!wasSuccessful) {
@@ -149,20 +143,26 @@ export default function AddItemForm({
   }
 
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+    <section
+      aria-labelledby={formTitleId}
+      className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
+    >
       <div>
-        <h2 className="text-lg font-semibold text-stone-900">
+        <h2 id={formTitleId} className="text-lg font-semibold text-stone-900">
           {editingItem ? "Edit Item" : "Add New Item"}
         </h2>
         <p className="mt-1 text-sm text-stone-600">
           {editingItem
             ? "You are editing an existing inventory item. Save your changes or cancel to return to add mode."
-            : "This form adds items to the visible list only for the current page session."}
+            : "This form adds a new inventory item and saves it to your account."}
         </p>
       </div>
 
       {errorMessage ? (
-        <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p
+          role="alert"
+          className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
           {errorMessage}
         </p>
       ) : null}
@@ -179,13 +179,18 @@ export default function AddItemForm({
             id="name"
             name="name"
             type="text"
+            required
+            aria-invalid={Boolean(errors.name)}
+            aria-describedby={errors.name ? "name-error" : undefined}
             value={values.name}
             onChange={handleChange}
             disabled={isPending}
             className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
           />
           {errors.name ? (
-            <p className="mt-1 text-xs text-red-600">{errors.name}</p>
+            <p id="name-error" className="mt-1 text-xs text-red-600">
+              {errors.name}
+            </p>
           ) : null}
         </div>
 
@@ -200,13 +205,18 @@ export default function AddItemForm({
             id="category"
             name="category"
             type="text"
+            required
+            aria-invalid={Boolean(errors.category)}
+            aria-describedby={errors.category ? "category-error" : undefined}
             value={values.category}
             onChange={handleChange}
             disabled={isPending}
             className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
           />
           {errors.category ? (
-            <p className="mt-1 text-xs text-red-600">{errors.category}</p>
+            <p id="category-error" className="mt-1 text-xs text-red-600">
+              {errors.category}
+            </p>
           ) : null}
         </div>
 
@@ -221,15 +231,21 @@ export default function AddItemForm({
             id="quantity"
             name="quantity"
             type="number"
-            min="1"
+            min="0"
             step="any"
+            required
+            inputMode="decimal"
+            aria-invalid={Boolean(errors.quantity)}
+            aria-describedby={errors.quantity ? "quantity-error" : undefined}
             value={values.quantity}
             onChange={handleChange}
             disabled={isPending}
             className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
           />
           {errors.quantity ? (
-            <p className="mt-1 text-xs text-red-600">{errors.quantity}</p>
+            <p id="quantity-error" className="mt-1 text-xs text-red-600">
+              {errors.quantity}
+            </p>
           ) : null}
         </div>
 
@@ -244,13 +260,18 @@ export default function AddItemForm({
             id="unit"
             name="unit"
             type="text"
+            required
+            aria-invalid={Boolean(errors.unit)}
+            aria-describedby={errors.unit ? "unit-error" : undefined}
             value={values.unit}
             onChange={handleChange}
             disabled={isPending}
             className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
           />
           {errors.unit ? (
-            <p className="mt-1 text-xs text-red-600">{errors.unit}</p>
+            <p id="unit-error" className="mt-1 text-xs text-red-600">
+              {errors.unit}
+            </p>
           ) : null}
         </div>
 
@@ -267,27 +288,36 @@ export default function AddItemForm({
             type="number"
             min="0"
             step="1"
+            required
+            inputMode="numeric"
+            aria-invalid={Boolean(errors.lowStockThreshold)}
+            aria-describedby={
+              errors.lowStockThreshold ? "low-stock-threshold-error" : undefined
+            }
             value={values.lowStockThreshold}
             onChange={handleChange}
             disabled={isPending}
             className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
           />
           {errors.lowStockThreshold ? (
-            <p className="mt-1 text-xs text-red-600">
+            <p
+              id="low-stock-threshold-error"
+              className="mt-1 text-xs text-red-600"
+            >
               {errors.lowStockThreshold}
             </p>
           ) : null}
         </div>
 
-        <div className="flex items-end gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
+            className="inline-flex items-center justify-center rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
           >
             {isPending
               ? editingItem
-                ? "Saving..."
+                ? "Updating..."
                 : "Adding..."
               : editingItem
                 ? "Save Changes"
@@ -299,7 +329,7 @@ export default function AddItemForm({
               type="button"
               onClick={handleCancelClick}
               disabled={isPending}
-              className="inline-flex items-center rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+              className="inline-flex items-center justify-center rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
             >
               Cancel
             </button>

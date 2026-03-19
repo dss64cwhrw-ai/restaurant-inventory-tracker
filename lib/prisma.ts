@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 
 const globalForPrisma = globalThis as typeof globalThis & {
+  pgPool?: Pool;
   prisma?: PrismaClient;
 };
 
@@ -12,9 +13,13 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set.");
 }
 
-const pool = new Pool({
-  connectionString,
-});
+// Reuse the same pool and Prisma client during local development so
+// hot reloading does not create extra connections.
+const pool =
+  globalForPrisma.pgPool ??
+  new Pool({
+    connectionString,
+  });
 
 const adapter = new PrismaPg(pool);
 
@@ -26,5 +31,6 @@ export const prisma =
   });
 
 if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.pgPool = pool;
   globalForPrisma.prisma = prisma;
 }

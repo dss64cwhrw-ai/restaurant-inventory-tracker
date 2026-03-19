@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { inventoryItemSchema } from "@/lib/validations/inventory";
 import type { InventoryItem, InventoryItemInput } from "@/types/inventory";
 
 type InventoryActionResult =
@@ -13,125 +15,158 @@ type DeleteInventoryActionResult =
   | { success: false; error: string };
 
 function validateInventoryItem(input: InventoryItemInput) {
-  if (!input.name.trim()) {
-    return "Item Name is required.";
+  const result = inventoryItemSchema.safeParse(input);
+
+  if (!result.success) {
+    const firstIssue = result.error.issues[0];
+    return firstIssue?.message ?? "Please check the inventory form.";
   }
 
-  if (!input.category.trim()) {
-    return "Category is required.";
-  }
-
-  if (input.quantity <= 0) {
-    return "Quantity must be greater than 0.";
-  }
-
-  if (!input.unit.trim()) {
-    return "Unit is required.";
-  }
-
-  if (input.lowStockThreshold < 0) {
-    return "Low Stock Threshold must be 0 or greater.";
-  }
-
-  return null;
+  return result.data;
 }
 
 export async function createInventoryItem(
   input: InventoryItemInput,
 ): Promise<InventoryActionResult> {
-  const error = validateInventoryItem(input);
+  const { userId } = await auth();
 
-  if (error) {
-    return { success: false, error };
+  if (!userId) {
+    return { success: false, error: "You must be signed in." };
   }
 
-  const item = await prisma.inventoryItem.create({
-    data: {
-      name: input.name.trim(),
-      category: input.category.trim(),
-      quantity: input.quantity,
-      unit: input.unit.trim(),
-      lowStockThreshold: input.lowStockThreshold,
-    },
-  });
+  const validatedInput = validateInventoryItem(input);
 
-  revalidatePath("/inventory");
-  revalidatePath("/dashboard");
+  if (typeof validatedInput === "string") {
+    return { success: false, error: validatedInput };
+  }
 
-  return {
-    success: true,
-    item: {
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      quantity: item.quantity,
-      unit: item.unit,
-      lowStockThreshold: item.lowStockThreshold,
-    },
-  };
+  try {
+    const item = await prisma.inventoryItem.create({
+      data: {
+        userId,
+        name: validatedInput.name,
+        category: validatedInput.category,
+        quantity: validatedInput.quantity,
+        unit: validatedInput.unit,
+        lowStockThreshold: validatedInput.lowStockThreshold,
+      },
+    });
+
+    revalidatePath("/inventory");
+    revalidatePath("/dashboard");
+
+    return {
+      success: true,
+      item: {
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity,
+        unit: item.unit,
+        lowStockThreshold: item.lowStockThreshold,
+      },
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Could not save the item. Please try again.",
+    };
+  }
 }
 
 export async function updateInventoryItem(
   input: InventoryItem,
 ): Promise<InventoryActionResult> {
-  const error = validateInventoryItem(input);
+  const { userId } = await auth();
 
-  if (error) {
-    return { success: false, error };
+  if (!userId) {
+    return { success: false, error: "You must be signed in." };
   }
 
-  const existingItem = await prisma.inventoryItem.findUnique({
-    where: { id: input.id },
+  const validatedInput = validateInventoryItem(input);
+
+  if (typeof validatedInput === "string") {
+    return { success: false, error: validatedInput };
+  }
+
+  const existingItem = await prisma.inventoryItem.findFirst({
+    where: {
+      id: input.id,
+      userId,
+    },
   });
 
   if (!existingItem) {
     return { success: false, error: "Item not found." };
   }
 
-  const item = await prisma.inventoryItem.update({
-    where: { id: input.id },
-    data: {
-      name: input.name.trim(),
-      category: input.category.trim(),
-      quantity: input.quantity,
-      unit: input.unit.trim(),
-      lowStockThreshold: input.lowStockThreshold,
-    },
-  });
+  try {
+    const item = await prisma.inventoryItem.update({
+      where: { id: input.id },
+      data: {
+        name: validatedInput.name,
+        category: validatedInput.category,
+        quantity: validatedInput.quantity,
+        unit: validatedInput.unit,
+        lowStockThreshold: validatedInput.lowStockThreshold,
+      },
+    });
 
-  revalidatePath("/inventory");
-  revalidatePath("/dashboard");
+    revalidatePath("/inventory");
+    revalidatePath("/dashboard");
 
-  return {
-    success: true,
-    item: {
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      quantity: item.quantity,
-      unit: item.unit,
-      lowStockThreshold: item.lowStockThreshold,
-    },
-  };
+    return {
+      success: true,
+      item: {
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity,
+        unit: item.unit,
+        lowStockThreshold: item.lowStockThreshold,
+      },
+    };
+  } catch {
+    return {
+      success: false,
+      error: "Could not update the item. Please try again.",
+    };
+  }
 }
 
 export async function deleteInventoryItem(
   itemId: number,
 ): Promise<DeleteInventoryActionResult> {
-  const existingItem = await prisma.inventoryItem.findUnique({
-    where: { id: itemId },
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in." };
+  }
+
+  const existingItem = await prisma.inventoryItem.findFirst({
+    where: {
+      id: itemId,
+      userId,
+    },
   });
 
   if (!existingItem) {
     return { success: false, error: "Item not found." };
   }
 
-  await prisma.inventoryItem.delete({
-    where: { id: itemId },
-  });
+  try {
+    await prisma.inventoryItem.delete({
+      where: { id: itemId },
+    });
 
-  revalidatePath("/inventory");
-  revalidatePath("/dashboard");
+    revalidatePath("/inventory");
+    revalidatePath("/dashboard");
 
-  return { success: true };
+    return { success: true };
+  } catch {
+    return {
+      success: false,
+      error: "Could not delete the item. Please try again.",
+    };
+  }
 }

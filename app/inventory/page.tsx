@@ -1,10 +1,17 @@
+import { auth } from "@clerk/nextjs/server";
 import InventoryManager from "@/components/inventory/InventoryManager";
 import { getInventoryItems } from "@/lib/inventory";
 
 export const dynamic = "force-dynamic";
 
 export default async function InventoryPage() {
-  const items = await getInventoryItems();
+  const { userId, redirectToSignIn } = await auth();
+
+  if (!userId) {
+    return redirectToSignIn();
+  }
+
+  const items = await getInventoryItems(userId);
 
   return (
     <div className="space-y-6">
@@ -13,7 +20,7 @@ export default async function InventoryPage() {
           Inventory
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-stone-600 sm:text-base">
-          This page now loads inventory items from the database. Search,
+          This page loads only your inventory items from the database. Search,
           filters, and CRUD actions still stay simple and beginner-friendly.
         </p>
       </section>
@@ -24,7 +31,8 @@ export default async function InventoryPage() {
             Current Inventory
           </h2>
           <p className="mt-1 text-sm text-stone-600">
-            Low-stock items are highlighted so they are easy to spot.
+            Low-stock items now appear more clearly with summary cards, alert
+            lists, and stronger stock-status labels.
           </p>
         </div>
       </section>
