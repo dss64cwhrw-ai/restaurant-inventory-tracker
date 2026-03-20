@@ -17,10 +17,3 @@ function createPrismaClient() {
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-```
-
----
-
-### 2️⃣ `prisma/schema.prisma` → Şu satırı bul:
-```
-output = "../node_modules/.prisma/client"
