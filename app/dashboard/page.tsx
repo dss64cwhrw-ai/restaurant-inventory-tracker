@@ -27,11 +27,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
+      <section className="surface-panel-strong section-block">
+        <p className="pill-label">Protected Overview</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-stone-950 [font-family:var(--font-fraunces)]">
           Dashboard
         </h1>
-        <p className="mt-2 text-sm text-stone-600 sm:text-base">
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-stone-600 sm:text-base">
           Review your current inventory health, low-stock risk, and prep task
           progress in one place.
         </p>
@@ -41,10 +42,10 @@ export default async function DashboardPage() {
         {summaryCards.map((card) => (
           <div
             key={card.label}
-            className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
+            className="metric-card rounded-[1.75rem] p-5"
           >
             <p className="text-sm font-medium text-stone-500">{card.label}</p>
-            <p className="mt-3 text-3xl font-semibold text-stone-900">
+            <p className="mt-3 text-3xl font-semibold text-stone-950">
               {card.value}
             </p>
           </div>
@@ -52,7 +53,7 @@ export default async function DashboardPage() {
       </section>
 
       {!hasAnyData ? (
-        <section className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm">
+        <section className="surface-panel rounded-[1.75rem] border-dashed p-8 text-center">
           <h2 className="text-lg font-semibold text-stone-900">
             Your dashboard is ready
           </h2>
@@ -69,7 +70,7 @@ export default async function DashboardPage() {
         title="Low Stock Alert"
       />
 
-      <section className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-5">
+      <section className="surface-muted rounded-[1.75rem] border-dashed p-5">
         <p className="text-sm text-stone-600">
           Inventory risk and prep totals come from the database through Prisma
           and stay scoped to the signed-in user.

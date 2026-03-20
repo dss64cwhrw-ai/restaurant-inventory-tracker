@@ -18,14 +18,14 @@ export default function InventoryTable({
   onDeleteItem,
 }: InventoryTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(137,98,66,0.16)] bg-[rgba(255,252,247,0.92)] shadow-[0_16px_30px_-24px_rgba(62,39,20,0.55)]">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-stone-200">
           <caption className="sr-only">
             Inventory table with item names, categories, quantities, stock
             thresholds, current status, and actions.
           </caption>
-          <thead className="bg-stone-50">
+          <thead className="bg-[rgba(255,244,232,0.75)]">
             <tr>
               <th
                 scope="col"
@@ -75,7 +75,7 @@ export default function InventoryTable({
               return (
                 <tr
                   key={item.id}
-                  className={`${status.rowClassName} hover:bg-stone-50`}
+                  className={`${status.rowClassName} transition hover:bg-[rgba(255,247,237,0.72)]`}
                 >
                   <th
                     scope="row"
@@ -105,7 +105,7 @@ export default function InventoryTable({
                         onClick={() => onEditItem(item)}
                         disabled={deletingItemId === item.id}
                         aria-label={`Edit ${item.name}`}
-                        className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:bg-stone-100"
+                        className="button-secondary rounded-lg px-3 py-1.5 text-xs font-medium transition"
                       >
                         Edit
                       </button>
@@ -114,7 +114,7 @@ export default function InventoryTable({
                         onClick={() => void onDeleteItem(item.id)}
                         disabled={deletingItemId === item.id}
                         aria-label={`Delete ${item.name}`}
-                        className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50"
+                        className="rounded-lg border border-red-200 bg-white/70 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50"
                       >
                         {deletingItemId === item.id ? "Deleting..." : "Delete"}
                       </button>

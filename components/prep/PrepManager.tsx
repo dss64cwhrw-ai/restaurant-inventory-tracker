@@ -150,21 +150,21 @@ export default function PrepManager({ initialTasks }: PrepManagerProps) {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="metric-card rounded-[1.75rem] p-5">
           <p className="text-sm font-medium text-stone-500">Total Tasks</p>
           <p className="mt-3 text-3xl font-semibold text-stone-900">
             {summary.totalTasks}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="metric-card rounded-[1.75rem] p-5">
           <p className="text-sm font-medium text-stone-500">Completed Tasks</p>
           <p className="mt-3 text-3xl font-semibold text-stone-900">
             {summary.completedTasks}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="metric-card rounded-[1.75rem] p-5">
           <p className="text-sm font-medium text-stone-500">Open Tasks</p>
           <p className="mt-3 text-3xl font-semibold text-stone-900">
             {summary.openTasks}
@@ -182,7 +182,7 @@ export default function PrepManager({ initialTasks }: PrepManagerProps) {
         onCancelEdit={handleCancelEdit}
       />
 
-      <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <section className="section-card rounded-[1.75rem] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-stone-900">Prep Tasks</h2>
@@ -203,7 +203,7 @@ export default function PrepManager({ initialTasks }: PrepManagerProps) {
               aria-describedby="prep-filter-help"
               value={selectedStatus}
               onChange={(event) => setSelectedStatus(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+              className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
             >
               <option value="All Tasks">All Tasks</option>
               <option value="Open">Open</option>
@@ -230,7 +230,7 @@ export default function PrepManager({ initialTasks }: PrepManagerProps) {
       ) : tasks.length > 0 ? (
         <section
           aria-live="polite"
-          className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+          className="surface-panel rounded-[1.75rem] border-dashed p-8 text-center"
         >
           <h3 className="text-lg font-semibold text-stone-900">
             No matching prep tasks
@@ -242,7 +242,7 @@ export default function PrepManager({ initialTasks }: PrepManagerProps) {
       ) : (
         <section
           aria-live="polite"
-          className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+          className="surface-panel rounded-[1.75rem] border-dashed p-8 text-center"
         >
           <h3 className="text-lg font-semibold text-stone-900">
             No prep tasks yet

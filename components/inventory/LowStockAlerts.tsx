@@ -27,7 +27,7 @@ export default function LowStockAlerts({
   return (
     <section
       aria-labelledby="low-stock-alerts-title"
-      className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
+      className="section-card rounded-[1.75rem] p-5"
     >
       <div>
         <h2
@@ -47,7 +47,7 @@ export default function LowStockAlerts({
           {alertItems.map((item) => (
             <li
               key={item.id}
-              className="rounded-xl border border-stone-200 bg-stone-50 p-4"
+              className="rounded-[1.4rem] border border-[rgba(137,98,66,0.12)] bg-[rgba(255,247,237,0.62)] p-4"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -78,7 +78,7 @@ export default function LowStockAlerts({
       ) : (
         <div
           aria-live="polite"
-          className="mt-5 rounded-xl border border-dashed border-stone-300 bg-stone-50 p-5"
+          className="surface-muted mt-5 rounded-[1.4rem] border-dashed p-5"
         >
           <p className="text-sm text-stone-600">{emptyMessage}</p>
         </div>

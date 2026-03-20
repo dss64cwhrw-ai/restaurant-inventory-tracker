@@ -145,7 +145,7 @@ export default function AddItemForm({
   return (
     <section
       aria-labelledby={formTitleId}
-      className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
+      className="section-card rounded-[1.75rem] p-5"
     >
       <div>
         <h2 id={formTitleId} className="text-lg font-semibold text-stone-900">
@@ -185,7 +185,7 @@ export default function AddItemForm({
             value={values.name}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.name ? (
             <p id="name-error" className="mt-1 text-xs text-red-600">
@@ -211,7 +211,7 @@ export default function AddItemForm({
             value={values.category}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.category ? (
             <p id="category-error" className="mt-1 text-xs text-red-600">
@@ -240,7 +240,7 @@ export default function AddItemForm({
             value={values.quantity}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.quantity ? (
             <p id="quantity-error" className="mt-1 text-xs text-red-600">
@@ -266,7 +266,7 @@ export default function AddItemForm({
             value={values.unit}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.unit ? (
             <p id="unit-error" className="mt-1 text-xs text-red-600">
@@ -297,7 +297,7 @@ export default function AddItemForm({
             value={values.lowStockThreshold}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.lowStockThreshold ? (
             <p
@@ -313,7 +313,7 @@ export default function AddItemForm({
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
+            className="button-primary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition"
           >
             {isPending
               ? editingItem
@@ -329,7 +329,7 @@ export default function AddItemForm({
               type="button"
               onClick={handleCancelClick}
               disabled={isPending}
-              className="inline-flex items-center justify-center rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+              className="button-secondary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition"
             >
               Cancel
             </button>

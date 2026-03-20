@@ -15,17 +15,18 @@ export default async function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <section>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">
+      <section className="surface-panel-strong section-block">
+        <p className="pill-label">Protected Workspace</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-stone-950 [font-family:var(--font-fraunces)]">
           Inventory
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-stone-600 sm:text-base">
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-stone-600 sm:text-base">
           This page loads only your inventory items from the database. Search,
           filters, and CRUD actions still stay simple and beginner-friendly.
         </p>
       </section>
 
-      <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <section className="surface-panel rounded-[1.75rem] p-5">
         <div>
           <h2 className="text-lg font-semibold text-stone-900">
             Current Inventory
@@ -39,7 +40,7 @@ export default async function InventoryPage() {
 
       <InventoryManager initialItems={items} />
 
-      <section className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-5">
+      <section className="surface-muted rounded-[1.75rem] border-dashed p-5">
         <p className="text-sm text-stone-600">
           Inventory changes now save to PostgreSQL through Prisma and stay after
           refresh.

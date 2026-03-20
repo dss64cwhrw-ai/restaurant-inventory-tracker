@@ -159,7 +159,7 @@ export default function InventoryManager({
         onCancelEdit={handleCancelEdit}
       />
 
-      <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <section className="section-card rounded-[1.75rem] p-5">
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-stone-900">Filters</h2>
           <p className="mt-1 text-sm text-stone-600">
@@ -182,7 +182,7 @@ export default function InventoryManager({
               aria-describedby="inventory-filter-help"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+              className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
             />
           </div>
 
@@ -198,7 +198,7 @@ export default function InventoryManager({
               aria-describedby="inventory-filter-help"
               value={selectedCategory}
               onChange={(event) => setSelectedCategory(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+              className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
             >
               {categoryOptions.map((category) => (
                 <option key={category} value={category}>
@@ -220,7 +220,7 @@ export default function InventoryManager({
               aria-describedby="inventory-filter-help"
               value={selectedStatus}
               onChange={(event) => setSelectedStatus(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+              className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
             >
               <option value="All Statuses">All Statuses</option>
               <option value="Needs Attention">Needs Attention</option>
@@ -249,7 +249,7 @@ export default function InventoryManager({
             type="button"
             onClick={() => setSelectedStatus("All Statuses")}
             aria-pressed={selectedStatus === "All Statuses"}
-            className="rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+            className="button-secondary rounded-xl px-4 py-2 text-sm font-medium transition"
           >
             Show All Items
           </button>
@@ -257,7 +257,7 @@ export default function InventoryManager({
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="metric-card rounded-[1.75rem] p-5">
           <p className="text-sm font-medium text-stone-500">
             Total Inventory Items
           </p>
@@ -266,14 +266,14 @@ export default function InventoryManager({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="metric-card rounded-[1.75rem] p-5">
           <p className="text-sm font-medium text-stone-500">Visible Items</p>
           <p className="mt-3 text-3xl font-semibold text-stone-900">
             {filteredItems.length}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="metric-card rounded-[1.75rem] p-5">
           <p className="text-sm font-medium text-stone-500">
             Visible Low Stock Items
           </p>
@@ -282,7 +282,7 @@ export default function InventoryManager({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="metric-card rounded-[1.75rem] p-5">
           <p className="text-sm font-medium text-stone-500">Critical Items</p>
           <p className="mt-3 text-3xl font-semibold text-stone-900">
             {criticalItems}
@@ -306,7 +306,7 @@ export default function InventoryManager({
       ) : items.length === 0 ? (
         <section
           aria-live="polite"
-          className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+          className="surface-panel rounded-[1.75rem] border-dashed p-8 text-center"
         >
           <h3 className="text-lg font-semibold text-stone-900">
             No inventory items yet
@@ -318,7 +318,7 @@ export default function InventoryManager({
       ) : (
         <section
           aria-live="polite"
-          className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm"
+          className="surface-panel rounded-[1.75rem] border-dashed p-8 text-center"
         >
           <h3 className="text-lg font-semibold text-stone-900">
             No matching items

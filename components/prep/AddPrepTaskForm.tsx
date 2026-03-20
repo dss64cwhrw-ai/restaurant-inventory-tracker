@@ -141,7 +141,7 @@ export default function AddPrepTaskForm({
   return (
     <section
       aria-labelledby={formTitleId}
-      className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
+      className="section-card rounded-[1.75rem] p-5"
     >
       <div>
         <h2 id={formTitleId} className="text-lg font-semibold text-stone-900">
@@ -181,7 +181,7 @@ export default function AddPrepTaskForm({
             value={values.title}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.title ? (
             <p id="prep-title-error" className="mt-1 text-xs text-red-600">
@@ -207,7 +207,7 @@ export default function AddPrepTaskForm({
             value={values.station}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.station ? (
             <p id="prep-station-error" className="mt-1 text-xs text-red-600">
@@ -233,7 +233,7 @@ export default function AddPrepTaskForm({
             value={values.dueTime}
             onChange={handleChange}
             disabled={isPending}
-            className="mt-1 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+            className="field-input mt-1 w-full rounded-xl px-3 py-2 text-sm text-stone-900 outline-none transition"
           />
           {errors.dueTime ? (
             <p id="prep-due-time-error" className="mt-1 text-xs text-red-600">
@@ -246,7 +246,7 @@ export default function AddPrepTaskForm({
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center rounded-xl bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700"
+            className="button-primary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition"
           >
             {isPending
               ? editingTask
@@ -262,7 +262,7 @@ export default function AddPrepTaskForm({
               type="button"
               onClick={handleCancelClick}
               disabled={isPending}
-              className="inline-flex items-center justify-center rounded-xl border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+              className="button-secondary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition"
             >
               Cancel
             </button>
