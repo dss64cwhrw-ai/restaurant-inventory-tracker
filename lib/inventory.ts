@@ -12,7 +12,7 @@ export async function getInventoryItems(userId: string): Promise<InventoryItem[]
     },
   });
 
-  return items.map((item) => ({
+ return items.map((item: any) => ({
     id: item.id,
     name: item.name,
     category: item.category,
